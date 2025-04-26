@@ -1,6 +1,19 @@
 const express = require("express");
 const app = express();
 
+// To test the query parameters
+app.get("/dynamicroute", (req, res) => {
+  console.log(req.query);
+  res.send("Testing the dynamic route");
+});
+
+// /To test the dynamic route parameters
+app.get("/dynamicrouteparam/:userid/:password", (req, res) => {
+  console.log(req.params);
+  res.send("Testing the dynamic route");
+});
+  
+
 // This is the top level one and could be called in all scenarios
 app.use("/user", (req, res) => {
   res.send("Shivam Dubey");
