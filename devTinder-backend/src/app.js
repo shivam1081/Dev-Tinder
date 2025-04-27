@@ -12,7 +12,6 @@ app.get("/dynamicrouteparam/:userid/:password", (req, res) => {
   console.log(req.params);
   res.send("Testing the dynamic route");
 });
-  
 
 // This is the top level one and could be called in all scenarios
 app.use("/user", (req, res) => {
@@ -28,6 +27,22 @@ app.get("/user", (req, res, next) => {
 app.post("/user", (req, res) => {
   res.send("Making a post call");
 });
+
+app.use("/", (req, res, next) => {
+  console.log("Middleware function");
+  next();
+});
+// This is for the concept of multiple route handlers
+app.get(
+  "/multpleroute",
+  (req, res, next) => {
+    console.log("First route handler");
+    res.send("First route handler");
+  },
+  (req, res) => {
+    res.send("Second route handler");
+  }
+);
 
 app.listen(3000, () => {
   console.log("listening on port 3000");
