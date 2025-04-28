@@ -1,5 +1,19 @@
 const express = require("express");
 const app = express();
+const {adminAuth}=require("./middlewares/auth");
+// Concept of Middlewares 
+
+app.use("/admin", adminAuth);
+
+app.get("/admin/data", (req, res) => {
+  res.send("Admin Data send Successfully");
+})
+
+app.delete("/admin/delete", (req, res) => {
+  res.send("Admin Data Deleted Successfully");
+})
+
+
 
 // To test the query parameters
 app.get("/dynamicroute", (req, res) => {
