@@ -13,6 +13,23 @@ app.delete("/admin/delete", (req, res) => {
   res.send("Admin Data Deleted Successfully");
 })
 
+// Concept od Error Handling 
+
+app.get("/handleError", (req, res, next) => {
+  // try {
+    throw new error("Something went wrong");
+    res.send("This is the response");
+  // }
+  // catch (err) {
+  //   res.status(500).send("Internal Server Error");
+  // }
+})
+
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("Internal Server Error from Middleware");
+  }
+})
 
 
 // To test the query parameters
