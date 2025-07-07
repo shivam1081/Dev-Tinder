@@ -9,6 +9,7 @@ app.use(express.json());
 
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
+  const data = req.body;
 
   try {
     // const user = await User.find({
@@ -49,13 +50,34 @@ app.delete("/deleteUser", async (req, res) => {
 });
 
 // Updating a user by ID
-app.patch("/updateUser", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/updateUser/:userId", async (req, res) => {
+  const userId = req?.params?.userId;
   const dataForUpdate = req.body;
+
   try {
+    const ALLOWED_UPDATES = [
+      "photoUrl",
+      "about",
+      "gender",
+      "age",
+      "skills",
+    ];
+
+    const isUpdateAllowed = Object.keys(dataForUpdate).every((key) =>
+      ALLOWED_UPDATES.includes(key)
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+
+    if (dataForUpdate?.skills?.length > 10) {
+      throw new Error ("Skills array cannot have more than 10 items");
+    }
+
     const user = await User.findByIdAndUpdate(userId, dataForUpdate, {
       returnDocument: "after",
-      runValidators:true
+      runValidators: true,
     });
     console.log(user);
     res.send("User updated successfully");
