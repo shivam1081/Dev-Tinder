@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,10 +16,22 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email is not valid");
+        }
+      },
     },
     password: {
       type: String,
       required: true,
+      validate(value) {
+        if(!validator.isStrongPassword(value, { minLength: 8 })) {
+          throw new Error(
+            "Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and symbols."
+          );
+        }
+      }
     },
     age: {
       type: String,
@@ -35,6 +48,11 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       default: "https://example.com/default-profile-pic.jpg", // Default profile picture URL
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Photo URL is not valid");
+        }
+      },
     },
     about: {
       type: String,
