@@ -3,10 +3,11 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
 
+// This is the middleware to parse JSON request bodies
+// It is because the server cannot read the JSON directly.
 app.use(express.json());
 
 // Get user by Email
-
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
   const data = req.body;
@@ -55,13 +56,7 @@ app.patch("/updateUser/:userId", async (req, res) => {
   const dataForUpdate = req.body;
 
   try {
-    const ALLOWED_UPDATES = [
-      "photoUrl",
-      "about",
-      "gender",
-      "age",
-      "skills",
-    ];
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
 
     const isUpdateAllowed = Object.keys(dataForUpdate).every((key) =>
       ALLOWED_UPDATES.includes(key)
@@ -72,7 +67,7 @@ app.patch("/updateUser/:userId", async (req, res) => {
     }
 
     if (dataForUpdate?.skills?.length > 10) {
-      throw new Error ("Skills array cannot have more than 10 items");
+      throw new Error("Skills array cannot have more than 10 items");
     }
 
     const user = await User.findByIdAndUpdate(userId, dataForUpdate, {
