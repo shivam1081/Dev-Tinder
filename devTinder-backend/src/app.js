@@ -2,6 +2,9 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const { validateSignUpData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 // This is the middleware to parse JSON request bodies
 // It is because the server cannot read the JSON directly.
@@ -82,21 +85,51 @@ app.patch("/updateUser/:userId", async (req, res) => {
 });
 
 app.post("/signup", async (req, res) => {
-  console.log(req.body);
-  // const userObj = {
-  //   firstName: "Shivam",
-  //   lastName: "Dubey",
-  //   emailId: "shivamdubey1801@gmail.com",
-  //   password: "shivam123",
-  //   age: "25",
-  // };
-  // Creating a new instance of the user model
-  const user = new User(req.body);
   try {
+    // Validation of Data
+    validateSignUpData(req);
+
+    // Encrypt the Password
+    const { firstName, lastName, emailId, password } = req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    // Store the user in the Database
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+
     await user.save();
     res.send("User created successfully");
   } catch (err) {
     res.status(400).send("Error creating user: " + err.message);
+  }
+});
+
+// Login API
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Email is not Valid");
+    }
+    const user = await User.findOne({
+      emailId,
+    });
+    if (!user || user.length === 0) {
+      return res.status(404).send("User not found");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user?.password);
+    if (isPasswordValid) {
+      res.send("Login Successful");
+    } else {
+      res.status(400).send("Invalid Password");
+    }
+  } catch (err) {
+    res.status(400).send("Error logging in: " + err.message);
   }
 });
 
