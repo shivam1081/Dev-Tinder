@@ -5,10 +5,14 @@ const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
-
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 // This is the middleware to parse JSON request bodies
 // It is because the server cannot read the JSON directly.
 app.use(express.json());
+
+// This is the middleware to parse cookies from the request
+app.use(cookieParser());
 
 // Get user by Email
 app.get("/user", async (req, res) => {
@@ -124,12 +128,40 @@ app.post("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user?.password);
     if (isPasswordValid) {
+      // Creating a JWT Token
+      const token = jwt.sign({ _id: user?._id }, "Shivam@1801");
+      console.log("Generated Token:", token);
+      // Create a JWT Token and send it to the user
+      res.cookie("token", token);
       res.send("Login Successful");
     } else {
       res.status(400).send("Invalid Password");
     }
   } catch (err) {
     res.status(400).send("Error logging in: " + err.message);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookie = req.cookies;
+    const { token } = cookie;
+    if (!token) {
+      throw new Error("Invalid Token");
+    }
+    // Validate the token
+    const decodedToken = jwt.verify(token, "Shivam@1801");
+    const { _id } = decodedToken;
+    const user = await User.findById(_id);
+
+    if (!user) {
+      throw new Error("User not found,Login Again");
+    }
+    
+    res.send(user);
+  } catch (err) {
+    // Get the user profile from the JWT token
+    res.status(400).send("Error fetching profile: " + err.message);
   }
 });
 
