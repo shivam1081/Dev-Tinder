@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 // This is the middleware to parse JSON request bodies
 // It is because the server cannot read the JSON directly.
 app.use(express.json());
@@ -142,26 +143,23 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const cookie = req.cookies;
-    const { token } = cookie;
-    if (!token) {
-      throw new Error("Invalid Token");
-    }
-    // Validate the token
-    const decodedToken = jwt.verify(token, "Shivam@1801");
-    const { _id } = decodedToken;
-    const user = await User.findById(_id);
-
-    if (!user) {
-      throw new Error("User not found,Login Again");
-    }
-    
-    res.send(user);
+    res.send(req.user);
   } catch (err) {
     // Get the user profile from the JWT token
     res.status(400).send("Error fetching profile: " + err.message);
+  }
+});
+
+// API to send connection request
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    console.log("Sending a connection Request");
+    res.send(user?.firstName + " send the Connection Request");
+  } catch (err) {
+    res.status(400).send("Error:" + err?.message);
   }
 });
 
