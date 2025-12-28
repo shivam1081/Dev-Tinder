@@ -130,10 +130,15 @@ app.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user?.password);
     if (isPasswordValid) {
       // Creating a JWT Token
-      const token = jwt.sign({ _id: user?._id }, "Shivam@1801");
+      const token = jwt.sign({ _id: user?._id }, "Shivam@1801", {
+        expiresIn: "7d",
+      });
       console.log("Generated Token:", token);
       // Create a JWT Token and send it to the user
-      res.cookie("token", token);
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000),
+        httpOnly: true,
+      });
       res.send("Login Successful");
     } else {
       res.status(400).send("Invalid Password");
