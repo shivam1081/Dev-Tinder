@@ -6,7 +6,6 @@ const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
 const { userAuth } = require("./middlewares/auth");
 // This is the middleware to parse JSON request bodies
 // It is because the server cannot read the JSON directly.
@@ -127,12 +126,11 @@ app.post("/login", async (req, res) => {
     if (!user || user.length === 0) {
       return res.status(404).send("User not found");
     }
-    const isPasswordValid = await bcrypt.compare(password, user?.password);
+    const isPasswordValid = await user.validatePassword(password);
     if (isPasswordValid) {
       // Creating a JWT Token
-      const token = jwt.sign({ _id: user?._id }, "Shivam@1801", {
-        expiresIn: "7d",
-      });
+      const token = await user.getJWT();
+
       console.log("Generated Token:", token);
       // Create a JWT Token and send it to the user
       res.cookie("token", token, {

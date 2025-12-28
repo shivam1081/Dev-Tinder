@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,12 +28,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       validate(value) {
-        if(!validator.isStrongPassword(value, { minLength: 8 })) {
+        if (!validator.isStrongPassword(value, { minLength: 8 })) {
           throw new Error(
             "Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and symbols."
           );
         }
-      }
+      },
     },
     age: {
       type: String,
@@ -65,6 +67,28 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// We should never use arrow functions for methods
+
+// Schema Method to generate JWT
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user?._id }, "Shivam@1801", {
+    expiresIn: "7d",
+  });
+  return token;
+};
+
+// Schema Method to validate Password
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  // Don't interchange the order of parameters here as it will lead to incorrect validation
+  const isPasswordValid = await bcrypt.compare(
+    passwordInputByUser,
+    user?.password
+  );
+  return isPasswordValid;
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
