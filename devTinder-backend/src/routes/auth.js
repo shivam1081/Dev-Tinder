@@ -8,6 +8,7 @@ const User = require("../models/user");
 const authRouter = express.Router(); // app and this router works the same way.
 const bcrypt = require("bcrypt");
 
+// SIGNUP API
 authRouter.post("/signup", async (req, res) => {
   try {
     // Validation of Data
@@ -27,6 +28,7 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     await user.save();
+    
     res.send("User created successfully");
   } catch (err) {
     res.status(400).send("Error creating user: " + err.message);
@@ -64,6 +66,15 @@ authRouter.post("/login", async (req, res) => {
   } catch (err) {
     res.status(400).send("Error logging in: " + err.message);
   }
+});
+
+// LOGOUT API
+// Just remove the token and expire the cookie right there.
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.send("Logout Succssfull");
 });
 
 module.exports = authRouter;

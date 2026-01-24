@@ -10,4 +10,25 @@ const validateSignUpData = (req) => {
     throw new Error("Password is not Strong Enough");
   }
 };
-module.exports = { validateSignUpData };
+
+// Schema Method tp validate the profile update fields
+const validateProfileData = (req) => {
+  // Checking the fields that are allowed to edit.
+  const allowedEditFields = [
+    "about",
+    "age",
+    "firstName",
+    "gender",
+    "lastName",
+    "photoUrl",
+    "skills",
+  ];
+
+  const isEditAllowed = Object.keys(req.body).every((field) =>
+    allowedEditFields?.includes(field)
+  );
+
+  return isEditAllowed;
+};
+
+module.exports = { validateProfileData, validateSignUpData };
