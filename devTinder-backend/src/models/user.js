@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       lowercase: true,
       required: true,
+      index: true,
       unique: true,
       trim: true,
       validate(value) {
@@ -30,7 +31,7 @@ const userSchema = new mongoose.Schema(
       validate(value) {
         if (!validator.isStrongPassword(value, { minLength: 8 })) {
           throw new Error(
-            "Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and symbols."
+            "Password must be at least 8 characters long and contain a mix of uppercase, lowercase, numbers, and symbols.",
           );
         }
       },
@@ -41,6 +42,10 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
+      enum: {
+        values: ["male", "female", "others"],
+        message: `{VALUE} is not a valid gender type`,
+      },
       validate(value) {
         if (!["male", "female", "others"].includes(value.toLowerCase())) {
           throw new Error("Gender Data is not valid");
@@ -65,7 +70,7 @@ const userSchema = new mongoose.Schema(
       default: ["abc", "xyz"],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // We should never use arrow functions for methods
@@ -85,7 +90,7 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
   // Don't interchange the order of parameters here as it will lead to incorrect validation
   const isPasswordValid = await bcrypt.compare(
     passwordInputByUser,
-    user?.password
+    user?.password,
   );
   return isPasswordValid;
 };
