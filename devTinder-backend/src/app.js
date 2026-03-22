@@ -17,11 +17,13 @@ app.use(cookieParser()); // This is the middleware to parse cookies from the req
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/requests");
+const userRouter = require("./routes/user");
 
 // This will check for all the APIs in all the routers. In which ever router the API is present, it will be executed.
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
 
 connectDB()
   .then(() => {

@@ -85,4 +85,47 @@ requestRouter.post(
   },
 );
 
+// API to Accept or Reject the connection request
+
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      // Checks:-
+      // 1.Is elon logged in. Person with to user Id should be logged in.
+      // 2. Connection Request should be in the Intrested state.
+      // 3. Request Id should be valid.
+      const allowedStatus = ["accepted", "rejected"];
+
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).json({ message: "Status not allowed!" });
+      }
+
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser?._id,
+        status: "interested",
+      });
+
+      if (!connectionRequest) {
+        return res
+          .status(404)
+          .json({ message: "Conenction Request not Found!" });
+      }
+
+      connectionRequest.status = status;
+
+      const data = await connectionRequest.save();
+      res.json({ message: "Connection Request " + status, data });
+      
+    } catch (err) {
+      res.status(400).send("Error" + err.message);
+    }
+  },
+);
+
 module.exports = requestRouter;
