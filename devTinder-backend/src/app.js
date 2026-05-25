@@ -1,6 +1,7 @@
 // Package Imports
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 // File Imports
 const connectDB = require("./config/database");
@@ -10,6 +11,12 @@ const app = express();
 
 // This is the middleware to parse JSON request bodies
 // It is because the server cannot read the JSON directly.
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    credentials: true, // Allow cookies to be sent in cross-origin requests
+  }),
+);
 app.use(express.json());
 app.use(cookieParser()); // This is the middleware to parse cookies from the request
 

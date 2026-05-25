@@ -28,7 +28,7 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     await user.save();
-    
+
     res.send("User created successfully");
   } catch (err) {
     res.status(400).send("Error creating user: " + err.message);
@@ -59,7 +59,7 @@ authRouter.post("/login", async (req, res) => {
         expires: new Date(Date.now() + 8 * 3600000),
         httpOnly: true,
       });
-      res.send("Login Successful");
+      res.send(user);
     } else {
       res.status(400).send("Invalid Password");
     }
