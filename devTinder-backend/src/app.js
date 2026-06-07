@@ -15,8 +15,10 @@ app.use(
   cors({
     origin: "http://localhost:5173", // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent in cross-origin requests
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   }),
 );
+app.options("*", cors());
 app.use(express.json());
 app.use(cookieParser()); // This is the middleware to parse cookies from the request
 

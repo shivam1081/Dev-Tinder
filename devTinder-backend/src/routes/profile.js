@@ -18,7 +18,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
+profileRouter.put("/profile/edit", userAuth, async (req, res) => {
   try {
     if (!validateProfileData(req)) {
       throw new Error("Invalid Edit Request");
@@ -53,12 +53,12 @@ profileRouter.patch("/profile/reset-password", userAuth, async (req, res) => {
 
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
-      loggedInUser?.password
+      loggedInUser?.password,
     );
 
     const currentNewPasswordSame = await bcrypt.compare(
       newPassword,
-      loggedInUser?.password
+      loggedInUser?.password,
     );
 
     if (!isPasswordValid) {
